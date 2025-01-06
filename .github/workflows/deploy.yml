@@ -36,13 +36,13 @@ jobs:
         with:
           python-version: '3.12'
 
-      # Poetry 설치
-      - name: Install Poetry
+      # Python 가상환경 생성 및 의존성 설치
+      - name: Set up Virtual Environment and Install Dependencies
         run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          export PATH="$HOME/.local/bin:$PATH"
-          poetry config virtualenvs.in-project true  # 가상 환경을 프로젝트 내에 생성
-          poetry install --no-root
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
 
       # 환경변수 설정
       - name: Set Environment Variables
@@ -55,14 +55,6 @@ jobs:
           echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> $GITHUB_ENV
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> $GITHUB_ENV
           echo "UPSTAGE_API_KEY=${{ secrets.UPSTAGE_API_KEY }}" >> $GITHUB_ENV
-
-      # Python 가상 환경 및 의존성 설치
-      - name: Set up Virtual Environment and Install Dependencies
-        run: |
-          python3 -m venv venv
-          source venv/bin/activate
-          poetry install --no-root
-          export PATH="$HOME/.local/bin:$PATH:$PWD/venv/bin"
 
       # 현재 시간 가져오기
       - name: Get current time
@@ -77,12 +69,11 @@ jobs:
         run: |
           mkdir -p deploy
           cp -r app deploy/
-          cp pyproject.toml deploy/
-          cp poetry.lock deploy/
-          cp Procfile deploy/Procfile
+          cp requirements.txt deploy/
+          cp Procfile deploy/
           cp -r .ebextensions deploy/.ebextensions || echo "No .ebextensions directory found"
           cp -r .platform deploy/.platform || echo "No .platform directory found"
-          cp -r venv deploy/venv
+          cp -r venv deploy/venv  # 가상환경 포함
           cd deploy && zip -r deploy.zip .
 
       # Elastic Beanstalk에 배포
