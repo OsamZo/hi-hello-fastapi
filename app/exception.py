@@ -34,9 +34,9 @@ async def custom_validation_exception_handler(request: Request, exc: HTTPExcepti
 
 async def conflict_exception_handler(request: Request, exc: HTTPException):
     return JSONResponse(
-        status_code=409,
+        status_code=exc.status_code,
         content={
-            "error": exc.detail.get("error", "ConflictError"),
-            "message": exc.detail.get("message", "Conflict occurred.")
-        }
+            "error": exc.detail if isinstance(exc.detail, str) else exc.detail.get("error", "ConflictError"),
+            "message": exc.detail if isinstance(exc.detail, str) else exc.detail.get("message", "A conflict occurred."),
+        },
     )

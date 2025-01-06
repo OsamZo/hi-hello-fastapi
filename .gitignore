@@ -10,7 +10,6 @@ venv/
 *.env
 
 # Poetry virtual environment
-poetry.lock
 poetry/
 
 # Distribution / packaging

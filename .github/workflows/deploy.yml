@@ -36,14 +36,6 @@ jobs:
         with:
           python-version: '3.12'
 
-      # Python 가상환경 생성 및 의존성 설치
-      - name: Set up Virtual Environment and Install Dependencies
-        run: |
-          python3 -m venv venv
-          source venv/bin/activate
-          pip install --upgrade pip
-          pip install -r requirements.txt
-
       # 환경변수 설정
       - name: Set Environment Variables
         run: |
@@ -69,11 +61,11 @@ jobs:
         run: |
           mkdir -p deploy
           cp -r app deploy/
-          cp requirements.txt deploy/
+          cp pyproject.toml deploy/
+          cp poetry.lock deploy/
           cp Procfile deploy/
           cp -r .ebextensions deploy/.ebextensions || echo "No .ebextensions directory found"
           cp -r .platform deploy/.platform || echo "No .platform directory found"
-          cp -r venv deploy/venv  # 가상환경 포함
           cd deploy && zip -r deploy.zip .
 
       # Elastic Beanstalk에 배포
